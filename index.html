@@ -6,6 +6,23 @@
   <style>
     body { font-family: georgia; }
 
+    .film {
+      border: 1px solid #E77DC2;
+      border-radius: 5px;
+      padding: 5px;
+      margin-bottom: 5px;
+      position: relative;
+    }
+    .pic {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+    #loader {
+      display: none;
+      margin: 1em auto;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -13,8 +30,32 @@
   <a href="year" class="category">Bond Films By Year</a><br />
   <a href="box" class="category">Bond Films By International Box Office Totals</a>
   <h3 id="filmtitle">Title Will Go Here</h3>
+  <div id="loader">
+    <img src="images/spinner.gif" alt="Loading..." />
+  </div>
   <div id="films"><p>Films will go here</p></div>
   <div id="output">Results go here</div>
+
+  <!-- <div class="film">
+    <b>Film</b>: 1<br />
+    <b>Title</b>: Dr. No<br />
+    <b>Year</b>: Content goes here<br />
+    <b>Director</b>: Content goes here<br />
+    <b>Produces</b>: Content goes here<br />
+    <b>Bond</b>: Content goes here<br />
+    <b>Writers</b>: Content goes here<br />
+    <b>Composer</b>: Content goes here<br />
+    <b>Budget</b>: Content goes here<br />
+    <b>Box Office</b>: Content goes here<br />
+    <div class="pic">
+      <img
+        src="https://newmanix.com/classes/it122/bond-web-service/thumbnails/dr-no.jpg"
+        alt=""
+      /> 
+    </div>
+  </div> -->
+
+  
 
   <script>
     document.addEventListener("DOMContentLoaded", function () {
@@ -28,18 +69,57 @@
     });
 
     var url = "https://newmanix.com/classes/it122/bond-web-service/";
+    //var url = "https://bookish-trout-v6pq767wj56qfx7vr-3000.app.github.dev/";
     async function loadAJAX(cat) {
+      
+      document.getElementById("output").innerHTML = "";
+      document.getElementById("filmtitle").innerHTML = "";
+      document.getElementById("loader").style.display = "block";
+      
+      
       const endpoint = url + "api.php?cat=" + cat;
       try {
         const response = await fetch(endpoint, { method: "GET", mode: "cors" });
         if (!response.ok) throw new Error("HTTP error " + response.status);
         const data = await response.json();
         console.log(data);
+        // let myData = JSON.stringify(data,null,4);
+        // myData = "<pre>" + myData + "</pre>";
+        // document.getElementById("output").innerHTML = myData;
+        document.getElementById("filmtitle").innerHTML = data.title;
+        data.films.forEach(film => {
+          const filmHTML = bondTemplate(film);
+          document.getElementById("output").innerHTML += filmHTML;
+        });
+        
       } catch (err) {
         document.getElementById("output").innerText = "Error loading data: " + err;
+      } finally{
+      document.getElementById("loader").style.display = "none";
       }
     }
-
+    function bondTemplate(film){
+      return `
+      <div class="film">
+        <b>Film</b>: ${film.Film}<br />
+        <b>Title</b>: ${film.Title}<br />
+        <b>Year</b>: ${film.Year}<br />
+        <b>Director</b>: ${film.Director}<br />
+        <b>Producers</b>: ${film.Producers}<br />
+        <b>Bond</b>: ${film.Bond}<br />
+        <b>Writers</b>: ${film.Writers}<br />
+        <b>Composer</b>: ${film.Composer}<br />
+        <b>Budget</b>: ${film.Budget}<br />
+        <b>Box Office</b>: ${film.BoxOffice}<br />
+        <div class="pic">
+          <img
+            src="${url}/${film.Image}"
+            alt=""
+          />
+        </div>
+      </div>
+    `;
+    }
   </script>
 </body>
 </html>
